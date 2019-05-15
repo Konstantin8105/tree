@@ -68,13 +68,13 @@ func isNil(i interface{}) bool {
 }
 
 func toString(i interface{}) (name string) {
+	name = NullNode
+	if isNil(i) {
+		return
+	}
 	switch v := i.(type) {
 	case *Tree:
-		if !isNil(v) {
-			name = toString(v.Node)
-		} else {
-			name = NullNode
-		}
+		name = toString(v.Node)
 
 	case Tree:
 		name = toString(v.Node)
@@ -82,29 +82,21 @@ func toString(i interface{}) (name string) {
 	case Stringer:
 		if !isNil(v) {
 			name = v.String()
-		} else {
-			name = NullNode
 		}
 
 	case string:
 		if v != "" {
 			name = v
-		} else {
-			name = NullNode
 		}
 
 	case error:
 		if !isNil(v) {
 			name = v.Error()
-		} else {
-			name = NullNode
 		}
 
 	default:
 		if i != nil {
 			name = fmt.Sprintf("%v", i)
-		} else {
-			name = NullNode
 		}
 	}
 
@@ -156,8 +148,11 @@ func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 		spaces = spaces[:size]
 	}()
 
+	fmt.Println("LEN = ", len(t.nodes))
 	for i := 0; i < len(t.nodes); i++ {
-		out += t.nodes[i].printNode(i == len(t.nodes)-1, spaces)
+		node := (t.nodes[i])
+		fmt.Printf("%T %#v %d\n", node, node, len(node.nodes))
+		out += node.printNode(i == len(t.nodes)-1, spaces)
 	}
 	return
 }

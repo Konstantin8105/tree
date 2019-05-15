@@ -174,7 +174,7 @@ func ExampleWalk() {
 	fmt.Fprintf(os.Stdout, "%s", tr.Print())
 
 	tree.Walk(tr, func(str interface{}) {
-		name := fmt.Sprintf("%s", str)
+		name := fmt.Sprintf("%v", str)
 		name = strings.TrimSpace(name)
 		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
 		fmt.Fprintf(os.Stdout, "Node: %-20s %s\n", fmt.Sprintf("%T", str), name)
