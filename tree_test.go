@@ -3,17 +3,20 @@ package tree_test
 import (
 	"bytes"
 	"fmt"
+	"math"
+	"os"
 
 	"github.com/Konstantin8105/tree"
 )
 
 func ExampleTree() {
 	artist := tree.New("Pantera")
-	album := artist.AddLine("Far Beyond Driven")
-	album.AddLine("5 minutes Alone")
-	album.AddLine("Some another")
-	artist.AddLine("Power Metal")
-	fmt.Println(artist)
+	album := tree.New("Far Beyond Driven")
+	album.Add("5 minutes Alone")
+	album.Add("Some another")
+	artist.Add(album)
+	artist.Add("Power Metal")
+	fmt.Fprintf(os.Stdout, "%s\n", artist)
 
 	// Output:
 	// Pantera
@@ -25,13 +28,13 @@ func ExampleTree() {
 
 func ExampleTreeMultiline() {
 	const name string = "Дерево"
-	artist := tree.Tree{}
-	artist.Name = tree.Line(name)
-	album := artist.AddLine("Поддерево\nс многострочным\nтекстом")
-	album.AddLine("Лист поддерева\nзеленый")
-	album.AddLine("Лист красный")
-	artist.AddLine("Лист\nжелтый")
-	fmt.Println(artist)
+	artist := tree.New(name)
+	album := tree.New("Поддерево\nс многострочным\nтекстом")
+	album.Add("Лист поддерева\nзеленый")
+	album.Add("Лист красный")
+	artist.Add(album)
+	artist.Add("Лист\nжелтый")
+	fmt.Fprintf(os.Stdout, "%s\n", artist)
 
 	// Output:
 	// Дерево
@@ -47,34 +50,37 @@ func ExampleTreeMultiline() {
 
 func ExampleSubTree() {
 	tr := tree.New("     Main tree")
-	tr.AddLine("Node 1\nof main tree\n\n\n")
-	tr.AddLine("          Node 2 of main tree          ")
+	tr.Add("Node 1\nof main tree\n\n\n")
+	tr.Add("          Node 2 of main tree          ")
 
 	subTr := tree.New("Sub tree")
-	subTr.AddLine("Node 1 of sub tree")
-	node := subTr.AddLine("Node 2 of sub tree")
+	subTr.Add("Node 1 of sub tree")
+	node := tree.New("Node 2 of sub tree")
+	subTr.Add(node)
 
 	subsubTr := tree.New("Sub tree")
-	subsubTr.AddLine("Node 1 of sub tree")
-	subsubTr.AddLine("Node 2\nof sub tree")
+	subsubTr.Add("Node 1 of sub tree")
+	subsubTr.Add("Node 2\nof sub tree")
 
-	in := node.AddLine("\n\n\nIntermediant node")
-	in.AddLine("some node")
-	in.AddTree(subsubTr)
+	in := tree.New("\n\n\nIntermediant node")
+	node.Add(in)
+	in.Add("some node")
+	in.Add(subsubTr)
 
-	node.AddLine("")  // empty name
-	node.AddLine("B") // small name
-	node.AddTree(subsubTr)
+	node.Add("")  // empty name
+	node.Add("B") // small name
+	node.Add(subsubTr)
 
-	tr.AddTree(subTr)
+	tr.Add(subTr)
 
-	ln := tr.AddLine("Last main node")
+	ln := tree.New("Last main node")
+	tr.Add(ln)
 
 	var b bytes.Buffer
 	b.WriteString("Some string from buffer\nwith multilines")
 	ln.Add(&b)
 
-	fmt.Println(tr)
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
 	// Main tree
@@ -90,7 +96,7 @@ func ExampleSubTree() {
 	// │     │     ├──Node 1 of sub tree
 	// │     │     └──Node 2
 	// │     │        of sub tree
-	// │     ├──
+	// │     ├──<< NULL >>
 	// │     ├──B
 	// │     └──Sub tree
 	// │        ├──Node 1 of sub tree
@@ -103,9 +109,10 @@ func ExampleSubTree() {
 
 func ExampleEmptyTree() {
 	tr := tree.Tree{}
-	fmt.Println(tr)
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
+	// << NULL >>
 }
 
 func ExampleEmptySubTree() {
@@ -113,24 +120,85 @@ func ExampleEmptySubTree() {
 		tr  = tree.Tree{}
 		str = tree.Tree{}
 	)
-	tr.Name = nil
 	str.Add(nil)
-	str.AddLine("")
-	str.AddTree(nil)
+	str.Add("")
+	str.Add((*tree.Tree)(nil))
 	str.Add(nil)
-	tr.AddTree(&str)
-	tr.AddTree(nil)
+
+	tr.Add(&str)
+
 	tr.Add(nil)
-	tr.AddTree((*tree.Tree)(nil))
-	fmt.Println(tr)
+	tr.Add(nil)
+	tr.Add((*tree.Tree)(nil))
+	tr.Add((*TempStruct)(nil))
+
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
-	// ├──
+	// << NULL >>
+	// ├──<< NULL >>
 	// │  ├──<< NULL >>
-	// │  ├──
+	// │  ├──<< NULL >>
 	// │  ├──<< NULL >>
 	// │  └──<< NULL >>
 	// ├──<< NULL >>
 	// ├──<< NULL >>
+	// ├──<< NULL >>
 	// └──<< NULL >>
+}
+
+type TempStruct struct {
+	a, b int
+	f    float32
+}
+
+func ExampleWalk() {
+	tr := tree.New("     Main tree")
+	tr.Add("Node 1\nof main tree\n\n\n")
+	tr.Add("          Node 2 of main tree          ")
+
+	// bytes buffer
+	var b bytes.Buffer
+	b.WriteString("Some string from buffer\nwith multilines")
+	tr.Add(&b)
+
+	// error
+	err := fmt.Errorf("Some error")
+	tr.Add(err)
+
+	// struct
+	ts := TempStruct{
+		a: 42,
+		b: 23,
+		f: math.Pi,
+	}
+	tr.Add(ts)
+
+	subTr := tree.New("Sub tree")
+	subTr.Add("Node 1 of sub tree")
+
+	tr.Add(subTr)
+
+	valueTree := tree.Tree{}
+	vt := tree.New("Value tree")
+	vt.Add("value tree node")
+	valueTree.Add(vt)
+	tr.Add(valueTree)
+
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
+
+	// Output:
+	// Main tree
+	// ├──Node 1
+	// │  of main tree
+	// ├──Node 2 of main tree
+	// ├──Some string from buffer
+	// │  with multilines
+	// ├──Some error
+	// ├──{42 23 3.1415927}
+	// ├──Sub tree
+	// │  └──Node 1 of sub tree
+	// └──<< NULL >>
+	//    └──Value tree
+	//       └──value tree node
 }

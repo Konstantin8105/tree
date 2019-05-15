@@ -2,6 +2,8 @@
 package tree
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -10,63 +12,38 @@ const (
 	continueItem = "│  "
 	emptyItem    = "   "
 	lastItem     = "└──"
-	NullNode     = Line("<< NULL >>")
+	NullNode     = "<< NULL >>"
 )
-
-// Line is string type
-type Line string
-
-// String return string of Line
-func (l Line) String() string {
-	return string(l)
-}
-
-// Stringer base interface
-type Stringer interface {
-	String() string
-}
 
 // Tree struct of tree
 type Tree struct {
-	Name  Stringer
+	Name  string
 	nodes []*Tree
 }
 
 // New returns a new tree
-func New(name string) *Tree {
-	return &Tree{
-		Name:  Line(name),
-		nodes: []*Tree{},
-	}
+func New(name string) (tr *Tree) {
+	tr = new(Tree)
+	tr.Name = name
+	return tr
 }
 
 // Add node in tree
-func (t *Tree) Add(text Stringer) *Tree {
-	n := new(Tree)
-	if text == nil {
-		n.Name = NullNode
-	} else {
-		n.Name = text
+func (t *Tree) Add(node interface{}) {
+	if tr, ok := node.(Tree); ok {
+		node = &tr
 	}
-	t.nodes = append(t.nodes, n)
-	return n
-}
-
-// AddLine add node with string
-func (t *Tree) AddLine(text string) *Tree {
-	n := new(Tree)
-	n.Name = Line(text)
-	t.nodes = append(t.nodes, n)
-	return n
-}
-
-// AddTree is add tree in present tree
-func (t *Tree) AddTree(at *Tree) {
-	if at == nil {
-		at = new(Tree)
-		at.Name = NullNode
+	if tr, ok := node.(*Tree); ok {
+		if tr != (*Tree)(nil) {
+			t.nodes = append(t.nodes, tr)
+			return
+		}
+		node = NullNode
 	}
-	t.nodes = append(t.nodes, at)
+	n := new(Tree)
+	n.Name = toString(node)
+	t.nodes = append(t.nodes, n)
+	return
 }
 
 // String return string with tree view
@@ -74,11 +51,48 @@ func (t Tree) String() (out string) {
 	return t.printNode(false, []string{})
 }
 
+func toString(i interface{}) (out string) {
+	out = NullNode
+	if i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil()) {
+		return
+	}
+
+	switch v := i.(type) {
+	case interface {
+		String() string
+	}:
+		if v != nil {
+			out = v.String()
+		}
+
+	case string:
+		if v != "" {
+			out = v
+		}
+
+	case interface {
+		Error() string
+	}:
+		if v != nil {
+			out = v.Error()
+		}
+
+	default:
+		if i != nil {
+			out = fmt.Sprintf("%v", i)
+		}
+	}
+
+	return
+}
+
 func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	var name string
-	if t.Name != nil {
-		name = strings.TrimSpace(t.Name.String())
+	if t.Name == "" {
+		name = NullNode
+	} else {
+		name = strings.TrimSpace(t.Name)
 	}
 
 	// split name into strings lines
@@ -124,5 +138,6 @@ func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	for i := 0; i < len(t.nodes); i++ {
 		out += t.nodes[i].printNode(i == len(t.nodes)-1, spaces)
 	}
+
 	return
 }
