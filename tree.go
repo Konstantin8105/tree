@@ -58,11 +58,6 @@ func toString(i interface{}) (out string) {
 	}
 
 	switch v := i.(type) {
-	case *Tree:
-		if len(v.nodes) > 0 {
-			out = toString(v.nodes[0])
-		}
-
 	case interface {
 		String() string
 	}:
@@ -91,10 +86,7 @@ func toString(i interface{}) (out string) {
 	return
 }
 
-func (t *Tree) printNode(isLast bool, spaces []string) (out string) {
-	if t == (*Tree)(nil) {
-		return NullNode
-	}
+func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	var name string
 	if t.Name == "" {
