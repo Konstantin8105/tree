@@ -10,6 +10,7 @@ const (
 	continueItem = "│  "
 	emptyItem    = "   "
 	lastItem     = "└──"
+	NullNode     = Line("<< NULL >>")
 )
 
 // Line is string type
@@ -42,7 +43,11 @@ func New(name string) *Tree {
 // Add node in tree
 func (t *Tree) Add(text Stringer) *Tree {
 	n := new(Tree)
-	n.Name = text
+	if text == nil {
+		n.Name = NullNode
+	} else {
+		n.Name = text
+	}
 	t.nodes = append(t.nodes, n)
 	return n
 }
@@ -57,6 +62,10 @@ func (t *Tree) AddLine(text string) *Tree {
 
 // AddTree is add tree in present tree
 func (t *Tree) AddTree(at *Tree) {
+	if at == nil {
+		at = new(Tree)
+		at.Name = NullNode
+	}
 	t.nodes = append(t.nodes, at)
 }
 

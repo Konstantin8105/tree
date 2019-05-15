@@ -113,9 +113,24 @@ func ExampleEmptySubTree() {
 		tr  = tree.Tree{}
 		str = tree.Tree{}
 	)
+	tr.Name = nil
+	str.Add(nil)
+	str.AddLine("")
+	str.AddTree(nil)
+	str.Add(nil)
 	tr.AddTree(&str)
+	tr.AddTree(nil)
+	tr.Add(nil)
+	tr.AddTree((*tree.Tree)(nil))
 	fmt.Println(tr)
 
 	// Output:
-	// └──
+	// ├──
+	// │  ├──<< NULL >>
+	// │  ├──
+	// │  ├──<< NULL >>
+	// │  └──<< NULL >>
+	// ├──<< NULL >>
+	// ├──<< NULL >>
+	// └──<< NULL >>
 }
