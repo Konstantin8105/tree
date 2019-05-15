@@ -17,47 +17,33 @@ const (
 
 // Tree struct of tree
 type Tree struct {
-	nodes []interface{}
+	Name  string
+	nodes []*Tree
 }
 
 // New returns a new tree
-func New(node interface{}) (tr *Tree) {
-	if tr, ok := node.(Tree); ok {
-		return &tr
-	}
+func New(name string) (tr *Tree) {
 	tr = new(Tree)
-	tr.nodes = append(tr.nodes, node)
+	tr.Name = name
 	return tr
 }
 
 // Add node in tree
-func (t *Tree) Add(node interface{}) *Tree {
+func (t *Tree) Add(node interface{}) {
 	if tr, ok := node.(Tree); ok {
-		n := &tr
-		t.nodes = append(t.nodes, n)
-		return n
+		node = &tr
 	}
 	if tr, ok := node.(*Tree); ok {
-		t.nodes = append(t.nodes, tr)
-		return tr
-	}
-	n := New(node)
-	t.nodes = append(t.nodes, n)
-	return n
-}
-
-// Walk walking by tree Stringers
-func Walk(t *Tree, f func(str interface{})) {
-	if t == (*Tree)(nil) {
-		return
-	}
-	for i := range t.nodes {
-		if tr, ok := t.nodes[i].(*Tree); ok && tr != (*Tree)(nil) {
-			Walk(tr, f)
-			continue
+		if tr != (*Tree)(nil) {
+			t.nodes = append(t.nodes, tr)
+			return
 		}
-		f(t.nodes[i])
+		node = NullNode
 	}
+	n := new(Tree)
+	n.Name = toString(node)
+	t.nodes = append(t.nodes, n)
+	return
 }
 
 // String return string with tree view
@@ -106,13 +92,20 @@ func toString(i interface{}) (out string) {
 		}
 	}
 
-	return out
+	return
 }
 
 func (t *Tree) printNode(isLast bool, spaces []string) (out string) {
+	if t == (*Tree)(nil) {
+		return NullNode
+	}
 	// clean name from spaces at begin and end of string
 	var name string
-	name = strings.TrimSpace(toString(t))
+	if t.Name == "" {
+		name = NullNode
+	} else {
+		name = strings.TrimSpace(t.Name)
+	}
 
 	// split name into strings lines
 	lines := strings.Split(name, "\n")
@@ -154,13 +147,8 @@ func (t *Tree) printNode(isLast bool, spaces []string) (out string) {
 		spaces = spaces[:size]
 	}()
 
-	if t != (*Tree)(nil) {
-		for i := 0; i < len(t.nodes); i++ {
-			node := (t.nodes[i])
-			if tr, ok := node.(*Tree); ok {
-				out += tr.printNode(i == len(t.nodes)-1, spaces)
-			}
-		}
+	for i := 0; i < len(t.nodes); i++ {
+		out += t.nodes[i].printNode(i == len(t.nodes)-1, spaces)
 	}
 
 	return
