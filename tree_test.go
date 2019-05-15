@@ -28,8 +28,7 @@ func ExampleTree() {
 
 func ExampleTreeMultiline() {
 	const name string = "Дерево"
-	artist := tree.Tree{}
-	artist.Node = name
+	artist := tree.New(name)
 	album := artist.Add("Поддерево\nс многострочным\nтекстом")
 	album.Add("Лист поддерева\nзеленый")
 	album.Add("Лист красный")
@@ -93,7 +92,7 @@ func ExampleSubTree() {
 	// │     │     ├──Node 1 of sub tree
 	// │     │     └──Node 2
 	// │     │        of sub tree
-	// │     ├──
+	// │     ├──<< NULL >>
 	// │     ├──B
 	// │     └──Sub tree
 	// │        ├──Node 1 of sub tree
@@ -109,6 +108,7 @@ func ExampleEmptyTree() {
 	fmt.Println(tr.Print())
 
 	// Output:
+	// << NULL >>
 }
 
 func ExampleEmptySubTree() {
@@ -116,24 +116,28 @@ func ExampleEmptySubTree() {
 		tr  = tree.Tree{}
 		str = tree.Tree{}
 	)
-	tr.Node = nil
 	str.Add(nil)
 	str.Add("")
 	str.Add(nil)
 	str.Add(nil)
+
 	tr.Add(&str)
+
 	tr.Add(nil)
 	tr.Add(nil)
 	tr.Add((*tree.Tree)(nil))
 	tr.Add((*TempStruct)(nil))
+
 	fmt.Println(tr.Print())
 
 	// Output:
-	// ├──
+	// << NULL >>
+	// ├──<< NULL >>
 	// │  ├──<< NULL >>
-	// │  ├──
+	// │  ├──<< NULL >>
 	// │  ├──<< NULL >>
 	// │  └──<< NULL >>
+	// ├──<< NULL >>
 	// ├──<< NULL >>
 	// ├──<< NULL >>
 	// └──<< NULL >>

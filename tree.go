@@ -30,31 +30,41 @@ type Stringer interface {
 
 // Tree struct of tree
 type Tree struct {
-	Node  interface{}
-	nodes []*Tree
+	nodes []interface{}
 }
 
 // New returns a new tree
-func New(name string) *Tree {
-	return &Tree{
-		Node:  name,
-		nodes: []*Tree{},
+func New(node interface{}) (tr *Tree) {
+	if tr, ok := node.(Tree); ok {
+		return &tr
 	}
+	tr = new(Tree)
+	tr.nodes = append(tr.nodes, node)
+	return tr
 }
 
 // Add node in tree
-func (t *Tree) Add(text interface{}) *Tree {
+func (t *Tree) Add(node interface{}) *Tree {
+	if tr, ok := node.(Tree); ok {
+		node = &tr
+	}
+	if tr, ok := node.(*Tree); ok {
+		t.nodes = append(t.nodes, tr)
+		return tr
+	}
 	n := new(Tree)
-	n.Node = text
+	n.nodes = append(n.nodes, node)
 	t.nodes = append(t.nodes, n)
 	return n
 }
 
 // Walk walking by tree Stringers
 func Walk(t *Tree, f func(str interface{})) {
-	f(t.Node)
 	for i := range t.nodes {
-		Walk(t.nodes[i], f)
+		f(t.nodes[i])
+		if tr, ok := t.nodes[i].(*Tree); ok {
+			Walk(tr, f)
+		}
 	}
 }
 
@@ -67,43 +77,46 @@ func isNil(i interface{}) bool {
 	return i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil())
 }
 
-func toString(i interface{}) (name string) {
-	name = NullNode
+func toString(i interface{}) (out string) {
+	out = NullNode
 	if isNil(i) {
 		return
 	}
+
 	switch v := i.(type) {
 	case *Tree:
-		name = toString(v.Node)
+		if len(v.nodes) > 0 {
+			out = toString(v.nodes[0])
+		}
 
 	case Tree:
-		name = toString(v.Node)
+		panic("not acceptable use Tree. Use *Tree insteand of Tree")
 
 	case Stringer:
 		if !isNil(v) {
-			name = v.String()
+			out = v.String()
 		}
 
 	case string:
 		if v != "" {
-			name = v
+			out = v
 		}
 
 	case error:
 		if !isNil(v) {
-			name = v.Error()
+			out = v.Error()
 		}
 
 	default:
 		if i != nil {
-			name = fmt.Sprintf("%v", i)
+			out = fmt.Sprintf("%v", i)
 		}
 	}
 
-	return name
+	return out
 }
 
-func (t Tree) printNode(isLast bool, spaces []string) (out string) {
+func (t *Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	var name string
 	name = strings.TrimSpace(toString(t))
@@ -148,11 +161,14 @@ func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 		spaces = spaces[:size]
 	}()
 
-	fmt.Println("LEN = ", len(t.nodes))
-	for i := 0; i < len(t.nodes); i++ {
-		node := (t.nodes[i])
-		fmt.Printf("%T %#v %d\n", node, node, len(node.nodes))
-		out += node.printNode(i == len(t.nodes)-1, spaces)
+	if t != (*Tree)(nil) {
+		for i := 0; i < len(t.nodes); i++ {
+			node := (t.nodes[i])
+			if tr, ok := node.(*Tree); ok {
+				out += tr.printNode(i == len(t.nodes)-1, spaces)
+			}
+		}
 	}
+
 	return
 }
