@@ -47,7 +47,7 @@ func (t *Tree) Add(node interface{}) {
 }
 
 // String return string with tree view
-func (t Tree) Print() (out string) {
+func (t Tree) String() (out string) {
 	return t.printNode(false, []string{})
 }
 

@@ -16,7 +16,7 @@ func ExampleTree() {
 	album.Add("Some another")
 	artist.Add(album)
 	artist.Add("Power Metal")
-	fmt.Fprintf(os.Stdout, "%s\n", artist.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", artist)
 
 	// Output:
 	// Pantera
@@ -34,7 +34,7 @@ func ExampleTreeMultiline() {
 	album.Add("Лист красный")
 	artist.Add(album)
 	artist.Add("Лист\nжелтый")
-	fmt.Fprintf(os.Stdout, "%s\n", artist.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", artist)
 
 	// Output:
 	// Дерево
@@ -80,7 +80,7 @@ func ExampleSubTree() {
 	b.WriteString("Some string from buffer\nwith multilines")
 	ln.Add(&b)
 
-	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
 	// Main tree
@@ -109,7 +109,7 @@ func ExampleSubTree() {
 
 func ExampleEmptyTree() {
 	tr := tree.Tree{}
-	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
 	// << NULL >>
@@ -132,7 +132,7 @@ func ExampleEmptySubTree() {
 	tr.Add((*tree.Tree)(nil))
 	tr.Add((*TempStruct)(nil))
 
-	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
 	// << NULL >>
@@ -185,7 +185,7 @@ func ExampleWalk() {
 	valueTree.Add(vt)
 	tr.Add(valueTree)
 
-	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr)
 
 	// Output:
 	// Main tree
