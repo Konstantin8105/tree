@@ -2,6 +2,8 @@
 package tree
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -10,7 +12,7 @@ const (
 	continueItem = "│  "
 	emptyItem    = "   "
 	lastItem     = "└──"
-	NullNode     = Line("<< NULL >>")
+	NullNode     = "<< NULL >>"
 )
 
 // Line is string type
@@ -28,66 +30,91 @@ type Stringer interface {
 
 // Tree struct of tree
 type Tree struct {
-	Name  Stringer
+	Node  interface{}
 	nodes []*Tree
 }
 
 // New returns a new tree
 func New(name string) *Tree {
 	return &Tree{
-		Name:  Line(name),
+		Node:  name,
 		nodes: []*Tree{},
 	}
 }
 
 // Add node in tree
-func (t *Tree) Add(text Stringer) *Tree {
+func (t *Tree) Add(text interface{}) *Tree {
 	n := new(Tree)
-	if text == nil {
-		n.Name = NullNode
-	} else {
-		n.Name = text
-	}
+	n.Node = text
 	t.nodes = append(t.nodes, n)
 	return n
-}
-
-// AddLine add node with string
-func (t *Tree) AddLine(text string) *Tree {
-	n := new(Tree)
-	n.Name = Line(text)
-	t.nodes = append(t.nodes, n)
-	return n
-}
-
-// AddTree is add tree in present tree
-func (t *Tree) AddTree(at *Tree) {
-	if at == nil {
-		at = new(Tree)
-		at.Name = NullNode
-	}
-	t.nodes = append(t.nodes, at)
 }
 
 // Walk walking by tree Stringers
-func Walk(t *Tree, f func(str Stringer)) {
-	f(t.Name)
+func Walk(t *Tree, f func(str interface{})) {
+	f(t.Node)
 	for i := range t.nodes {
 		Walk(t.nodes[i], f)
 	}
 }
 
 // String return string with tree view
-func (t Tree) String() (out string) {
+func (t Tree) Print() (out string) {
 	return t.printNode(false, []string{})
+}
+
+func isNil(i interface{}) bool {
+	return i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil())
+}
+
+func toString(i interface{}) (name string) {
+	switch v := i.(type) {
+	case *Tree:
+		if !isNil(v) {
+			name = toString(v.Node)
+		} else {
+			name = NullNode
+		}
+
+	case Tree:
+		name = toString(v.Node)
+
+	case Stringer:
+		if !isNil(v) {
+			name = v.String()
+		} else {
+			name = NullNode
+		}
+
+	case string:
+		if v != "" {
+			name = v
+		} else {
+			name = NullNode
+		}
+
+	case error:
+		if !isNil(v) {
+			name = v.Error()
+		} else {
+			name = NullNode
+		}
+
+	default:
+		if i != nil {
+			name = fmt.Sprintf("%v", i)
+		} else {
+			name = NullNode
+		}
+	}
+
+	return name
 }
 
 func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	var name string
-	if t.Name != nil {
-		name = strings.TrimSpace(t.Name.String())
-	}
+	name = strings.TrimSpace(toString(t))
 
 	// split name into strings lines
 	lines := strings.Split(name, "\n")
