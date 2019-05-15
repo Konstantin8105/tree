@@ -3,6 +3,7 @@ package tree_test
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/Konstantin8105/tree"
 )
@@ -133,4 +134,38 @@ func ExampleEmptySubTree() {
 	// ├──<< NULL >>
 	// ├──<< NULL >>
 	// └──<< NULL >>
+}
+
+func ExampleWalk() {
+	tr := tree.New("     Main tree")
+	tr.AddLine("Node 1\nof main tree\n\n\n")
+	tr.AddLine("          Node 2 of main tree          ")
+
+	subTr := tree.New("Sub tree")
+	subTr.AddLine("Node 1 of sub tree")
+
+	tr.AddTree(subTr)
+
+	fmt.Println(tr)
+
+	tree.Walk(tr, func(str tree.Stringer) {
+		name := str.String()
+		name = strings.TrimSpace(name)
+		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
+		fmt.Printf("Node: %s\n", name)
+	})
+
+	// Output:
+	// Main tree
+	// ├──Node 1
+	// │  of main tree
+	// ├──Node 2 of main tree
+	// └──Sub tree
+	//    └──Node 1 of sub tree
+	//
+	// Node: Main tree
+	// Node: Node 1 << BreakLine >> of main tree
+	// Node: Node 2 of main tree
+	// Node: Sub tree
+	// Node: Node 1 of sub tree
 }

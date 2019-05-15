@@ -69,6 +69,14 @@ func (t *Tree) AddTree(at *Tree) {
 	t.nodes = append(t.nodes, at)
 }
 
+// Walk walking by tree Stringers
+func Walk(t *Tree, f func(str Stringer)) {
+	f(t.Name)
+	for i := range t.nodes {
+		Walk(t.nodes[i], f)
+	}
+}
+
 // String return string with tree view
 func (t Tree) String() (out string) {
 	return t.printNode(false, []string{})
