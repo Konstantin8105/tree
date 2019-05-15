@@ -57,7 +57,7 @@ func ExampleSubTree() {
 	subsubTr.Add("Node 1 of sub tree")
 	subsubTr.Add("Node 2 of sub tree")
 
-	in := node.Add("Intermediant node")
+	in := node.Add("\n\n\nIntermediant node")
 	in.Add("some node")
 	in.AddTree(subsubTr)
 

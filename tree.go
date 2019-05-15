@@ -46,7 +46,7 @@ func (t Tree) String() (out string) {
 	return t.printNode(0, false, []string{})
 }
 
-func (t Tree) printNode(level int, isLast bool, separator []string) (out string) {
+func (t Tree) printNode(level int, isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	name := strings.TrimSpace(t.Name)
 	{
@@ -96,7 +96,7 @@ func (t Tree) printNode(level int, isLast bool, separator []string) (out string)
 	}
 	level++
 	for i := 0; i < len(t.nodes); i++ {
-		out += t.nodes[i].printNode(level, i == len(t.nodes)-1, separator)
+		out += t.nodes[i].printNode(level, i == len(t.nodes)-1, spaces)
 	}
 	return
 }
