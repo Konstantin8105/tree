@@ -2,8 +2,6 @@
 package tree
 
 import (
-	"fmt"
-	"runtime/debug"
 	"strings"
 )
 
@@ -68,13 +66,6 @@ func (t Tree) String() (out string) {
 }
 
 func (t Tree) printNode(isLast bool, spaces []string) (out string) {
-	// panic free
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
-		}
-	}()
-
 	// clean name from spaces at begin and end of string
 	var name string
 	if t.Name != nil {

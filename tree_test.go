@@ -107,3 +107,15 @@ func ExampleEmptyTree() {
 
 	// Output:
 }
+
+func ExampleEmptySubTree() {
+	var (
+		tr  = tree.Tree{}
+		str = tree.Tree{}
+	)
+	tr.AddTree(&str)
+	fmt.Println(tr)
+
+	// Output:
+	// └──
+}
