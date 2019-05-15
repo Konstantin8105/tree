@@ -16,7 +16,8 @@ func ExampleTree() {
 	album.Add("5 minutes Alone")
 	album.Add("Some another")
 	artist.Add("Power Metal")
-	fmt.Println(artist.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", artist.Print())
+	tree.Walk(artist, checkWalk)
 
 	// Output:
 	// Pantera
@@ -24,6 +25,12 @@ func ExampleTree() {
 	// │  ├──5 minutes Alone
 	// │  └──Some another
 	// └──Power Metal
+	//
+	// Node: string                    |Pantera
+	// Node: string                    |Far Beyond Driven
+	// Node: string                    |5 minutes Alone
+	// Node: string                    |Some another
+	// Node: string                    |Power Metal
 }
 
 func ExampleTreeMultiline() {
@@ -33,7 +40,8 @@ func ExampleTreeMultiline() {
 	album.Add("Лист поддерева\nзеленый")
 	album.Add("Лист красный")
 	artist.Add("Лист\nжелтый")
-	fmt.Println(artist.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", artist.Print())
+	tree.Walk(artist, checkWalk)
 
 	// Output:
 	// Дерево
@@ -45,6 +53,12 @@ func ExampleTreeMultiline() {
 	// │  └──Лист красный
 	// └──Лист
 	//    желтый
+	//
+	// Node: string                    |Дерево
+	// Node: string                    |Поддерево << BreakLine >> с многострочным << BreakLine >> текстом
+	// Node: string                    |Лист поддерева << BreakLine >> зеленый
+	// Node: string                    |Лист красный
+	// Node: string                    |Лист << BreakLine >> желтый
 }
 
 func ExampleSubTree() {
@@ -76,7 +90,8 @@ func ExampleSubTree() {
 	b.WriteString("Some string from buffer\nwith multilines")
 	ln.Add(&b)
 
-	fmt.Println(tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	tree.Walk(tr, checkWalk)
 
 	// Output:
 	// Main tree
@@ -101,11 +116,34 @@ func ExampleSubTree() {
 	// └──Last main node
 	//    └──Some string from buffer
 	//       with multilines
+	//
+	// Node: string                    |Main tree
+	// Node: string                    |Node 1 << BreakLine >> of main tree
+	// Node: string                    |Node 2 of main tree
+	// Node: string                    |Sub tree
+	// Node: string                    |Node 1 of sub tree
+	// Node: string                    |Node 2 of sub tree
+	// Node: string                    |Intermediant node
+	// Node: string                    |some node
+	// Node: string                    |Sub tree
+	// Node: string                    |Node 1 of sub tree
+	// Node: string                    |Node 2 << BreakLine >> of sub tree
+	// Node: string                    |
+	// Node: string                    |B
+	// Node: string                    |Sub tree
+	// Node: string                    |Node 1 of sub tree
+	// Node: string                    |Node 2 << BreakLine >> of sub tree
+	// Node: string                    |Last main node
+	// Node: *bytes.Buffer             |Some string from buffer << BreakLine >> with multilines
 }
 
 func ExampleEmptyTree() {
 	tr := tree.Tree{}
-	fmt.Println(tr.Print())
+	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	tree.Walk(&tr, checkWalk)
+
+	tr2 := (*tree.Tree)(nil)
+	tree.Walk(tr2, checkWalk)
 
 	// Output:
 	// << NULL >>
@@ -128,14 +166,8 @@ func ExampleEmptySubTree() {
 	tr.Add((*tree.Tree)(nil))
 	tr.Add((*TempStruct)(nil))
 
-	fmt.Println(tr.Print())
-
-	tree.Walk(&tr, func(str interface{}) {
-		name := fmt.Sprintf("%v", str)
-		name = strings.TrimSpace(name)
-		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
-		fmt.Fprintf(os.Stdout, "Node: %-25s |%s\n", fmt.Sprintf("%T", str), name)
-	})
+	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	tree.Walk(&tr, checkWalk)
 
 	// Output:
 	// << NULL >>
@@ -191,14 +223,14 @@ func ExampleWalk() {
 
 	tr.Add(subTr)
 
-	fmt.Fprintf(os.Stdout, "%s", tr.Print())
+	valueTree := tree.Tree{}
+	vt := valueTree.Add("Value tree")
+	vt.Add("value tree node")
 
-	tree.Walk(tr, func(str interface{}) {
-		name := fmt.Sprintf("%v", str)
-		name = strings.TrimSpace(name)
-		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
-		fmt.Fprintf(os.Stdout, "Node: %-25s |%s\n", fmt.Sprintf("%T", str), name)
-	})
+	tr.Add(valueTree)
+
+	fmt.Fprintf(os.Stdout, "%s\n", tr.Print())
+	tree.Walk(tr, checkWalk)
 
 	// Output:
 	// Main tree
@@ -211,6 +243,7 @@ func ExampleWalk() {
 	// ├──{42 23 3.1415927}
 	// └──Sub tree
 	//    └──Node 1 of sub tree
+	//
 	// Node: string                    |Main tree
 	// Node: string                    |Node 1 << BreakLine >> of main tree
 	// Node: string                    |Node 2 of main tree
@@ -219,4 +252,11 @@ func ExampleWalk() {
 	// Node: tree_test.TempStruct      |{42 23 3.1415927}
 	// Node: string                    |Sub tree
 	// Node: string                    |Node 1 of sub tree
+}
+
+func checkWalk(str interface{}) {
+	name := fmt.Sprintf("%v", str)
+	name = strings.TrimSpace(name)
+	name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
+	fmt.Fprintf(os.Stdout, "Node: %-25s |%s\n", fmt.Sprintf("%T", str), name)
 }

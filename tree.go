@@ -15,19 +15,6 @@ const (
 	NullNode     = "<< NULL >>"
 )
 
-// Line is string type
-type Line string
-
-// String return string of Line
-func (l Line) String() string {
-	return string(l)
-}
-
-// Stringer base interface
-type Stringer interface {
-	String() string
-}
-
 // Tree struct of tree
 type Tree struct {
 	nodes []interface{}
@@ -46,14 +33,15 @@ func New(node interface{}) (tr *Tree) {
 // Add node in tree
 func (t *Tree) Add(node interface{}) *Tree {
 	if tr, ok := node.(Tree); ok {
-		node = &tr
+		n := &tr
+		t.nodes = append(t.nodes, n)
+		return n
 	}
 	if tr, ok := node.(*Tree); ok {
 		t.nodes = append(t.nodes, tr)
 		return tr
 	}
-	n := new(Tree)
-	n.nodes = append(n.nodes, node)
+	n := New(node)
 	t.nodes = append(t.nodes, n)
 	return n
 }
@@ -93,10 +81,9 @@ func toString(i interface{}) (out string) {
 			out = toString(v.nodes[0])
 		}
 
-	case Tree:
-		panic("not acceptable use Tree. Use *Tree insteand of Tree")
-
-	case Stringer:
+	case interface {
+		String() string
+	}:
 		if !isNil(v) {
 			out = v.String()
 		}
@@ -106,7 +93,9 @@ func toString(i interface{}) (out string) {
 			out = v
 		}
 
-	case error:
+	case interface {
+		Error() string
+	}:
 		if !isNil(v) {
 			out = v.Error()
 		}
