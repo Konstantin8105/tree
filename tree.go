@@ -8,11 +8,10 @@ import (
 
 const (
 	newLine      = "\n"
-	emptySpace   = "    "
-	middleItem   = "├── "
-	continueItem = "│   "
-	emptyItem    = "    "
-	lastItem     = "└── "
+	middleItem   = "├──"
+	continueItem = "│  "
+	emptyItem    = "   "
+	lastItem     = "└──"
 )
 
 // Tree struct of tree
@@ -43,38 +42,21 @@ func (t *Tree) AddTree(at *Tree) {
 
 // String return string with tree view
 func (t Tree) String() (out string) {
-	return t.printNode(0, false, []string{})
+	return t.printNode(false, []string{})
 }
 
-func (t Tree) printNode(level int, isLast bool, spaces []string) (out string) {
+func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	name := strings.TrimSpace(t.Name)
-	{
-		// remove new lines at begin of name
-		// TODO:
-	}
-	{
-		// remove last new lines from name
-		for i := len(name) - 1; i >= 0; i-- {
-			if i == 0 {
-				if name[0] == '\n' {
-					name = ""
-				}
-				break
-			}
-			if name[i] == '\n' {
-				name = name[:len(name)-1]
-				continue
-			}
-			break
-		}
-	}
+
+	// split name into strings lines
 	lines := strings.Split(name, "\n")
+
 	var tab [2]string
-	for i := 0; i < level; i++ {
+	for i, level := 0, len(spaces); i < level; i++ {
 		if i > 0 {
-			tab[0] += continueItem
-			tab[1] += continueItem
+			tab[0] += spaces[i]
+			tab[1] += spaces[i]
 		}
 		if i == level-1 {
 			if isLast {
@@ -86,7 +68,9 @@ func (t Tree) printNode(level int, isLast bool, spaces []string) (out string) {
 			}
 		}
 	}
+
 	for i := range lines {
+		lines[i] = strings.TrimSpace(lines[i])
 		if i == 0 {
 			out += tab[0] + lines[i]
 		} else {
@@ -94,9 +78,19 @@ func (t Tree) printNode(level int, isLast bool, spaces []string) (out string) {
 		}
 		out += newLine
 	}
-	level++
+
+	size := len(spaces)
+	if isLast {
+		spaces = append(spaces, emptyItem)
+	} else {
+		spaces = append(spaces, continueItem)
+	}
+	defer func() {
+		spaces = spaces[:size]
+	}()
+
 	for i := 0; i < len(t.nodes); i++ {
-		out += t.nodes[i].printNode(level, i == len(t.nodes)-1, spaces)
+		out += t.nodes[i].printNode(i == len(t.nodes)-1, spaces)
 	}
 	return
 }

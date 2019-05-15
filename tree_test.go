@@ -16,10 +16,10 @@ func ExampleTree() {
 
 	// Output:
 	// Pantera
-	// ├── Far Beyond Driven
-	// │   ├── 5 minutes Alone
-	// │   └── Some another
-	// └── Power Metal
+	// ├──Far Beyond Driven
+	// │  ├──5 minutes Alone
+	// │  └──Some another
+	// └──Power Metal
 }
 
 func ExampleTreeMultiline() {
@@ -34,14 +34,14 @@ func ExampleTreeMultiline() {
 
 	// Output:
 	// Дерево
-	// ├── Поддерево
-	// │   с многострочным
-	// │   текстом
-	// │   ├── Лист поддерева
-	// │   │   зеленый
-	// │   └── Лист красный
-	// └── Лист
-	//     желтый
+	// ├──Поддерево
+	// │  с многострочным
+	// │  текстом
+	// │  ├──Лист поддерева
+	// │  │  зеленый
+	// │  └──Лист красный
+	// └──Лист
+	//    желтый
 }
 
 func ExampleSubTree() {
@@ -55,7 +55,7 @@ func ExampleSubTree() {
 
 	subsubTr := tree.New("Sub tree")
 	subsubTr.Add("Node 1 of sub tree")
-	subsubTr.Add("Node 2 of sub tree")
+	subsubTr.Add("Node 2\nof sub tree")
 
 	in := node.Add("\n\n\nIntermediant node")
 	in.Add("some node")
@@ -66,23 +66,30 @@ func ExampleSubTree() {
 	node.AddTree(subsubTr)
 
 	tr.AddTree(subTr)
+
+	tr.Add("Last main node")
+
 	fmt.Println(tr)
 
 	// Output:
 	// Main tree
-	// ├── Node 1 of main tree
-	// ├── Node 2 of main tree
-	// └── Sub tree
-	//     ├── Node 1 of sub tree
-	//     └── Node 2 of sub tree
-	//         ├── Intermediant node
-	//         │   ├── some node
-	//         │   └── Sub tree
-	//         │       ├── Node 1 of sub tree
-	//         │       └── Node 2 of sub tree
-	//         ├──
-	//         ├── B
-	//         └── Sub tree
-	//             ├── Node 1 of sub tree
-	//             └── Node 2 of sub tree
+	// ├──Node 1
+	// │  of main tree
+	// ├──Node 2 of main tree
+	// ├──Sub tree
+	// │  ├──Node 1 of sub tree
+	// │  └──Node 2 of sub tree
+	// │     ├──Intermediant node
+	// │     │  ├──some node
+	// │     │  └──Sub tree
+	// │     │     ├──Node 1 of sub tree
+	// │     │     └──Node 2
+	// │     │        of sub tree
+	// │     ├──
+	// │     ├──B
+	// │     └──Sub tree
+	// │        ├──Node 1 of sub tree
+	// │        └──Node 2
+	// │           of sub tree
+	// └──Last main node
 }
