@@ -141,6 +141,13 @@ func ExampleWalk() {
 	tr.AddLine("Node 1\nof main tree\n\n\n")
 	tr.AddLine("          Node 2 of main tree          ")
 
+	var b bytes.Buffer
+	b.WriteString("Some string from buffer\nwith multilines")
+	tr.Add(&b)
+
+	// 	err := fmt.Errorf("Some error")
+	// 	tr.Add(err)
+
 	subTr := tree.New("Sub tree")
 	subTr.AddLine("Node 1 of sub tree")
 
@@ -152,7 +159,7 @@ func ExampleWalk() {
 		name := str.String()
 		name = strings.TrimSpace(name)
 		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
-		fmt.Printf("Node: %s\n", name)
+		fmt.Printf("Node: %-20s %s\n", fmt.Sprintf("%T", str), name)
 	})
 
 	// Output:
@@ -160,12 +167,15 @@ func ExampleWalk() {
 	// ├──Node 1
 	// │  of main tree
 	// ├──Node 2 of main tree
+	// ├──Some string from buffer
+	// │  with multilines
 	// └──Sub tree
 	//    └──Node 1 of sub tree
 	//
-	// Node: Main tree
-	// Node: Node 1 << BreakLine >> of main tree
-	// Node: Node 2 of main tree
-	// Node: Sub tree
-	// Node: Node 1 of sub tree
+	// Node: tree.Line            Main tree
+	// Node: tree.Line            Node 1 << BreakLine >> of main tree
+	// Node: tree.Line            Node 2 of main tree
+	// Node: *bytes.Buffer        Some string from buffer << BreakLine >> with multilines
+	// Node: tree.Line            Sub tree
+	// Node: tree.Line            Node 1 of sub tree
 }
