@@ -45,9 +45,9 @@ func ExampleTreeMultiline() {
 }
 
 func ExampleSubTree() {
-	tr := tree.New("Main tree")
+	tr := tree.New("     Main tree")
 	tr.Add("Node 1\nof main tree\n\n\n")
-	tr.Add("Node 2 of main tree")
+	tr.Add("          Node 2 of main tree          ")
 
 	subTr := tree.New("Sub tree")
 	subTr.Add("Node 1 of sub tree")
@@ -57,7 +57,10 @@ func ExampleSubTree() {
 	subsubTr.Add("Node 1 of sub tree")
 	subsubTr.Add("Node 2 of sub tree")
 
-	node.Add("Intermediant node")
+	in := node.Add("Intermediant node")
+	in.Add("some node")
+	in.AddTree(subsubTr)
+
 	node.Add("")  // empty name
 	node.Add("B") // small name
 	node.AddTree(subsubTr)
@@ -70,6 +73,16 @@ func ExampleSubTree() {
 	// ├── Node 1 of main tree
 	// ├── Node 2 of main tree
 	// └── Sub tree
-	// │   ├── Node 1 of sub tree
-	// │   └── Node 2 of sub tree
+	//     ├── Node 1 of sub tree
+	//     └── Node 2 of sub tree
+	//         ├── Intermediant node
+	//         │   ├── some node
+	//         │   └── Sub tree
+	//         │       ├── Node 1 of sub tree
+	//         │       └── Node 2 of sub tree
+	//         ├──
+	//         ├── B
+	//         └── Sub tree
+	//             ├── Node 1 of sub tree
+	//             └── Node 2 of sub tree
 }

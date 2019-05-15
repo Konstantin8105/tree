@@ -47,7 +47,12 @@ func (t Tree) String() (out string) {
 }
 
 func (t Tree) printNode(level int, isLast bool, separator []string) (out string) {
-	name := t.Name
+	// clean name from spaces at begin and end of string
+	name := strings.TrimSpace(t.Name)
+	{
+		// remove new lines at begin of name
+		// TODO:
+	}
 	{
 		// remove last new lines from name
 		for i := len(name) - 1; i >= 0; i-- {
