@@ -130,11 +130,11 @@ func ExampleEmptySubTree() {
 
 	fmt.Println(tr.Print())
 
-	tree.Walk(tr, func(str interface{}) {
+	tree.Walk(&tr, func(str interface{}) {
 		name := fmt.Sprintf("%v", str)
 		name = strings.TrimSpace(name)
 		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
-		fmt.Fprintf(os.Stdout, "Node: %-20s %s\n", fmt.Sprintf("%T", str), name)
+		fmt.Fprintf(os.Stdout, "Node: %-25s |%s\n", fmt.Sprintf("%T", str), name)
 	})
 
 	// Output:
@@ -148,6 +148,15 @@ func ExampleEmptySubTree() {
 	// ├──<< NULL >>
 	// ├──<< NULL >>
 	// └──<< NULL >>
+	//
+	// Node: <nil>                     |<nil>
+	// Node: string                    |
+	// Node: <nil>                     |<nil>
+	// Node: <nil>                     |<nil>
+	// Node: <nil>                     |<nil>
+	// Node: <nil>                     |<nil>
+	// Node: *tree.Tree                |<nil>
+	// Node: *tree_test.TempStruct     |<nil>
 }
 
 type TempStruct struct {
@@ -188,7 +197,7 @@ func ExampleWalk() {
 		name := fmt.Sprintf("%v", str)
 		name = strings.TrimSpace(name)
 		name = strings.ReplaceAll(name, "\n", " << BreakLine >> ")
-		fmt.Fprintf(os.Stdout, "Node: %-20s %s\n", fmt.Sprintf("%T", str), name)
+		fmt.Fprintf(os.Stdout, "Node: %-25s |%s\n", fmt.Sprintf("%T", str), name)
 	})
 
 	// Output:
@@ -198,13 +207,16 @@ func ExampleWalk() {
 	// ├──Node 2 of main tree
 	// ├──Some string from buffer
 	// │  with multilines
+	// ├──Some error
+	// ├──{42 23 3.1415927}
 	// └──Sub tree
 	//    └──Node 1 of sub tree
-	//
-	// Node: tree.Line            Main tree
-	// Node: tree.Line            Node 1 << BreakLine >> of main tree
-	// Node: tree.Line            Node 2 of main tree
-	// Node: *bytes.Buffer        Some string from buffer << BreakLine >> with multilines
-	// Node: tree.Line            Sub tree
-	// Node: tree.Line            Node 1 of sub tree
+	// Node: string                    |Main tree
+	// Node: string                    |Node 1 << BreakLine >> of main tree
+	// Node: string                    |Node 2 of main tree
+	// Node: *bytes.Buffer             |Some string from buffer << BreakLine >> with multilines
+	// Node: *errors.errorString       |Some error
+	// Node: tree_test.TempStruct      |{42 23 3.1415927}
+	// Node: string                    |Sub tree
+	// Node: string                    |Node 1 of sub tree
 }

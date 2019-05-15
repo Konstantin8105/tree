@@ -60,11 +60,15 @@ func (t *Tree) Add(node interface{}) *Tree {
 
 // Walk walking by tree Stringers
 func Walk(t *Tree, f func(str interface{})) {
+	if t == (*Tree)(nil) {
+		return
+	}
 	for i := range t.nodes {
-		f(t.nodes[i])
-		if tr, ok := t.nodes[i].(*Tree); ok {
+		if tr, ok := t.nodes[i].(*Tree); ok && tr != (*Tree)(nil) {
 			Walk(tr, f)
+			continue
 		}
+		f(t.nodes[i])
 	}
 }
 
