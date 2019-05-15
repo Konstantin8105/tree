@@ -51,13 +51,9 @@ func (t Tree) Print() (out string) {
 	return t.printNode(false, []string{})
 }
 
-func isNil(i interface{}) bool {
-	return i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil())
-}
-
 func toString(i interface{}) (out string) {
 	out = NullNode
-	if isNil(i) {
+	if i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil()) {
 		return
 	}
 
@@ -70,7 +66,7 @@ func toString(i interface{}) (out string) {
 	case interface {
 		String() string
 	}:
-		if !isNil(v) {
+		if v != nil {
 			out = v.String()
 		}
 
@@ -82,7 +78,7 @@ func toString(i interface{}) (out string) {
 	case interface {
 		Error() string
 	}:
-		if !isNil(v) {
+		if v != nil {
 			out = v.Error()
 		}
 
