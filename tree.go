@@ -1,4 +1,4 @@
-// Package gotree create and print tree.
+// Package tree create and print tree.
 package tree
 
 import (
@@ -12,7 +12,7 @@ const (
 	continueItem = "│  "
 	emptyItem    = "   "
 	lastItem     = "└──"
-	NullNode     = "<< NULL >>"
+	nullNode     = "<< NULL >>"
 )
 
 // Tree struct of tree
@@ -38,7 +38,7 @@ func (t *Tree) Add(node interface{}) {
 			t.nodes = append(t.nodes, tr)
 			return
 		}
-		node = NullNode
+		node = nullNode
 	}
 	n := new(Tree)
 	n.Name = toString(node)
@@ -52,7 +52,7 @@ func (t Tree) String() (out string) {
 }
 
 func toString(i interface{}) (out string) {
-	out = NullNode
+	out = nullNode
 	if i == nil || (reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil()) {
 		return
 	}
@@ -90,7 +90,7 @@ func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 	// clean name from spaces at begin and end of string
 	var name string
 	if t.Name == "" {
-		name = NullNode
+		name = nullNode
 	} else {
 		name = strings.TrimSpace(t.Name)
 	}

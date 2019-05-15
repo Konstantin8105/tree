@@ -1,7 +1,7 @@
 [![codecov](https://codecov.io/gh/Konstantin8105/tree/branch/master/graph/badge.svg)](https://codecov.io/gh/Konstantin8105/tree)
 [![Build Status](https://travis-ci.org/Konstantin8105/tree.svg?branch=master)](https://travis-ci.org/Konstantin8105/tree)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Konstantin8105/tree)](https://goreportcard.com/report/github.com/Konstantin8105/tree)
-[![GitHub license](https://img.shields.io/badge/license-LGPL%20v2.1-blue.svg)](https://github.com/Konstantin8105/tree/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Konstantin8105/tree/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/Konstantin8105/tree?status.svg)](https://godoc.org/github.com/Konstantin8105/tree)
 
 # tree
