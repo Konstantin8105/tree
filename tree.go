@@ -1,36 +1,58 @@
 // Package gotree create and print tree.
-// Based on project: https://github.com/DiSiqueira/GoTree
 package tree
 
 import (
+	"fmt"
+	"runtime/debug"
 	"strings"
 )
 
 const (
-	newLine      = "\n"
 	middleItem   = "├──"
 	continueItem = "│  "
 	emptyItem    = "   "
 	lastItem     = "└──"
 )
 
+// Line is string type
+type Line string
+
+// String return string of Line
+func (l Line) String() string {
+	return string(l)
+}
+
+// Stringer base interface
+type Stringer interface {
+	String() string
+}
+
 // Tree struct of tree
 type Tree struct {
-	Name  string
+	Name  Stringer
 	nodes []*Tree
 }
 
 // New returns a new tree
 func New(name string) *Tree {
 	return &Tree{
-		Name:  name,
+		Name:  Line(name),
 		nodes: []*Tree{},
 	}
 }
 
 // Add node in tree
-func (t *Tree) Add(text string) *Tree {
-	n := New(text)
+func (t *Tree) Add(text Stringer) *Tree {
+	n := new(Tree)
+	n.Name = text
+	t.nodes = append(t.nodes, n)
+	return n
+}
+
+// AddLine add node with string
+func (t *Tree) AddLine(text string) *Tree {
+	n := new(Tree)
+	n.Name = Line(text)
 	t.nodes = append(t.nodes, n)
 	return n
 }
@@ -46,8 +68,18 @@ func (t Tree) String() (out string) {
 }
 
 func (t Tree) printNode(isLast bool, spaces []string) (out string) {
+	// panic free
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
+		}
+	}()
+
 	// clean name from spaces at begin and end of string
-	name := strings.TrimSpace(t.Name)
+	var name string
+	if t.Name != nil {
+		name = strings.TrimSpace(t.Name.String())
+	}
 
 	// split name into strings lines
 	lines := strings.Split(name, "\n")
@@ -76,7 +108,7 @@ func (t Tree) printNode(isLast bool, spaces []string) (out string) {
 		} else {
 			out += tab[1] + lines[i]
 		}
-		out += newLine
+		out += "\n"
 	}
 
 	size := len(spaces)
